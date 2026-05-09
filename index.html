@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Motor Control</title>
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="bg-orbs">
+      <div class="orb orb1"></div>
+      <div class="orb orb2"></div>
+      <div class="orb orb3"></div>
+    </div>
+
+    <main class="container">
+      <header>
+        <div class="brand">
+          <div class="brand-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+            </svg>
+          </div>
+          <span>RemoteBox</span>
+        </div>
+        <div class="connection-badge" id="connectionBadge">
+          <span class="badge-dot"></span>
+          <span id="connectionText">Connecting</span>
+        </div>
+      </header>
+
+      <section class="hero">
+        <p class="hero-label">DEVICE STATUS</p>
+        <h1 class="hero-title" id="statusTitle">Offline</h1>
+        <p class="hero-sub" id="statusSub">Waiting for connection...</p>
+      </section>
+
+      <section class="motor-card" id="motorCard">
+        <div class="card-left">
+          <div class="motor-icon" id="motorIcon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="2" y="7" width="15" height="10" rx="2"/>
+              <path d="M17 9l4 3-4 3"/>
+              <circle cx="8" cy="12" r="2"/>
+            </svg>
+          </div>
+          <div class="card-info">
+            <p class="card-label">DC Motor</p>
+            <p class="card-status" id="cardStatus">Initializing</p>
+          </div>
+        </div>
+        <button class="power-btn" id="powerBtn" onclick="handleToggle()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"/>
+            <line x1="12" y1="2" x2="12" y2="12"/>
+          </svg>
+        </button>
+      </section>
+
+      <section class="stats-row">
+        <div class="stat-card">
+          <p class="stat-label">Last Triggered</p>
+          <p class="stat-value" id="lastTriggered">Never</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Source</p>
+          <p class="stat-value" id="triggerSource">None</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Total Cycles</p>
+          <p class="stat-value" id="totalCycles">0</p>
+        </div>
+      </section>
+
+      <footer>
+        <p>RemoteBox &nbsp;·&nbsp; Firebase Realtime DB &nbsp;·&nbsp; ESP32</p>
+      </footer>
+    </main>
+
+    <script type="module" src="main.js"></script>
+  </body>
+</html>
