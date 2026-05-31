@@ -1,84 +1,246 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Motor Control</title>
+    <title>RemoteLock — Dashboard</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap"
+        rel="stylesheet" />
     <link rel="stylesheet" href="style.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  </head>
-  <body>
-    <div class="bg-orbs">
-      <div class="orb orb1"></div>
-      <div class="orb orb2"></div>
-      <div class="orb orb3"></div>
+</head>
+
+<body>
+
+    <div id="loginOverlay">
+        <div class="login-card">
+            <div class="login-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <rect x="3" y="11" width="18" height="11" rx="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+                <span>RemoteLock</span>
+            </div>
+            <div>
+                <h1>Admin Access</h1>
+                <p style="margin-top: 5px;">Authenticate to continue</p>
+            </div>
+            <div class="field-grp">
+                <label>Email</label>
+                <input id="loginEmail" type="text" placeholder="admin@example.com" />
+            </div>
+            <div class="field-grp">
+                <label>Password</label>
+                <input id="loginPassword" type="password" placeholder="password123" />
+            </div>
+            <div id="loginError"
+                style="color:var(--red);font-size:12px;min-height:14px;font-family:'DM Mono',monospace;"></div>
+            <button class="btn-login" id="loginBtn">Authenticate</button>
+        </div>
     </div>
 
-    <main class="container">
-      <header>
-        <div class="brand">
-          <div class="brand-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="3"/>
-              <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
-            </svg>
-          </div>
-          <span>RemoteBox</span>
-        </div>
-        <div class="connection-badge" id="connectionBadge">
-          <span class="badge-dot"></span>
-          <span id="connectionText">Connecting</span>
-        </div>
-      </header>
+    <div id="app">
+        <header class="topbar">
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                </div>
+                RemoteLock
+            </div>
+            <nav class="nav-tabs">
+                <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+                <button class="tab-btn" onclick="switchTab('logs')">Logs & Diagnostics</button>
+            </nav>
+            <div class="user-pill">
+                <span id="cloudDot" class="status-dot"></span>
+                <span id="userNameDisplay" class="user-name">admin</span>
+                <button id="logoutBtn" class="logout-btn">Logout</button>
+            </div>
+        </header>
 
-      <section class="hero">
-        <p class="hero-label">DEVICE STATUS</p>
-        <h1 class="hero-title" id="statusTitle">Offline</h1>
-        <p class="hero-sub" id="statusSub">Waiting for connection...</p>
-      </section>
+        <div class="container">
+            <div id="tab-dashboard" class="tab-content active">
 
-      <section class="motor-card" id="motorCard">
-        <div class="card-left">
-          <div class="motor-icon" id="motorIcon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <rect x="2" y="7" width="15" height="10" rx="2"/>
-              <path d="M17 9l4 3-4 3"/>
-              <circle cx="8" cy="12" r="2"/>
-            </svg>
-          </div>
-          <div class="card-info">
-            <p class="card-label">DC Motor</p>
-            <p class="card-status" id="cardStatus">Initializing</p>
-          </div>
-        </div>
-        <button class="power-btn" id="powerBtn" onclick="handleToggle()">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"/>
-            <line x1="12" y1="2" x2="12" y2="12"/>
-          </svg>
-        </button>
-      </section>
+                <div class="card lock-card closed" id="lockCard">
+                    <div class="lock-left">
+                        <div class="lock-eyebrow">Door State</div>
+                        <h1 class="hero-title closed" id="statusTitle">LOCKED</h1>
+                        <div class="hero-sub">
+                            <span id="lastUserTxt">last_user: —</span>
+                            <span id="autoLockTimerTxt" style="color:var(--amber);display:none;">| auto_lock: 60s</span>
+                        </div>
+                    </div>
+                    <div class="lock-right">
+                        <button class="power-btn closed" id="powerBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+                                <line x1="12" y1="2" x2="12" y2="12" />
+                            </svg>
+                        </button>
+                        <span class="power-label">Toggle</span>
+                    </div>
+                </div>
 
-      <section class="stats-row">
-        <div class="stat-card">
-          <p class="stat-label">Last Triggered</p>
-          <p class="stat-value" id="lastTriggered">Never</p>
-        </div>
-        <div class="stat-card">
-          <p class="stat-label">Source</p>
-          <p class="stat-value" id="triggerSource">None</p>
-        </div>
-        <div class="stat-card">
-          <p class="stat-label">Total Cycles</p>
-          <p class="stat-value" id="totalCycles">0</p>
-        </div>
-      </section>
+                <div class="dashboard-grid">
 
-      <footer>
-        <p>RemoteBox &nbsp;·&nbsp; Firebase Realtime DB &nbsp;·&nbsp; ESP32</p>
-      </footer>
-    </main>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="12" y1="16" x2="12" y2="12" />
+                                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                                </svg>
+                                System Status
+                            </div>
+                        </div>
+                        <div>
+                            <div class="info-row"><span class="info-label">network_sync</span><span
+                                    class="info-value mono" id="valDevice">offline</span></div>
+                            <div class="info-row"><span class="info-label">device_uptime</span><span
+                                    class="info-value mono" id="valUptime">—</span></div>
+                            <div class="info-row"><span class="info-label">door_last_opened</span><span
+                                    class="info-value mono" id="valDoor">—</span></div>
+                            <div class="info-row"><span class="info-label">active_alert</span><span
+                                    class="info-value err mono" id="valError">null</span></div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="3" />
+                                    <path
+                                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                                </svg>
+                                Preferences
+                            </div>
+                        </div>
+                        <div>
+                            <div class="toggle-row">
+                                <div>
+                                    <div class="toggle-label">Auto Lock</div>
+                                    <div class="toggle-sub">Lock after 60 seconds</div>
+                                </div>
+                                <label class="switch"><input type="checkbox" id="togAutoLock"><span
+                                        class="slider"></span></label>
+                            </div>
+                            <div class="toggle-row">
+                                <div>
+                                    <div class="toggle-label">Dark Theme</div>
+                                    <div class="toggle-sub">Sync LCD UI to dark mode</div>
+                                </div>
+                                <label class="switch"><input type="checkbox" id="togDarkTheme" checked><span
+                                        class="slider"></span></label>
+                            </div>
+                            <div style="margin-top:14px">
+                                <div class="toggle-label">Push Alert</div>
+                                <div class="toggle-sub">Display persistent alert on LCD</div>
+                                <div class="input-group">
+                                    <input type="text" id="alertInput" placeholder="Alert message..." />
+                                    <button class="btn-sm primary" id="btnSendAlert">Push</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 19l7-7 3 3-7 7-3-3z" />
+                                    <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+                                </svg>
+                                Custom Wallpaper (320×240)
+                            </div>
+                        </div>
+                        <div>
+                            <div class="canvas-wrap"><canvas id="drawCanvas" width="320" height="240"></canvas></div>
+                            <div class="toolbar">
+                                <label>brush</label>
+                                <input type="range" id="brushSize" min="2" max="24" value="6" />
+                                <button class="btn-sm" id="btnClearCanvas">Clear</button>
+                                <button class="btn-sm primary" id="btnSendDraw"
+                                    style="flex:1;justify-content:center">Send Image</button>
+                            </div>
+                            <div class="progress-bar" id="drawProgress">
+                                <div class="progress-fill" id="drawFill"></div>
+                            </div>
+                            <div class="progress-text" id="drawText">Sending...</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                                </svg>
+                                Remote Message
+                            </div>
+                        </div>
+                        <div>
+                            <textarea id="msgInput" class="msg-box" placeholder="Message for LCD display..."
+                                maxlength="200"></textarea>
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+                                <span style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace"
+                                    id="msgCharCount">0 / 200</span>
+                                <button class="btn-sm primary" id="btnSendMsg">Send Message</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="tab-logs" class="tab-content">
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <polyline points="12 6 12 12 16 14" />
+                                </svg>
+                                Action History
+                            </div>
+                            <button class="btn-sm danger" id="btnClearHistory">Clear Log</button>
+                        </div>
+                        <div class="log-list" id="historyList">
+                            <div class="empty-state">Loading history...</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path
+                                        d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                    <line x1="12" y1="9" x2="12" y2="13" />
+                                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                                </svg>
+                                System Errors
+                            </div>
+                            <button class="btn-sm danger" id="btnClearErrors">Clear Errors</button>
+                        </div>
+                        <div class="error-list" id="errorList">
+                            <div class="empty-state">loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast"></div>
+
 
     <script type="module" src="main.js"></script>
-  </body>
+</body>
+
 </html>
